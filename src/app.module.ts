@@ -8,10 +8,8 @@ import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
 import configuration from './config/enviroment.config';
-import validationSchema from './config/env-schema.config';
+import validationSchema from './config/enviroment-schema.config';
 import { JwtMiddleware } from './common/middleware/jwt.middleware';
-import { CommonModule } from './common/common.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -65,6 +63,6 @@ import { AuthModule } from './auth/auth.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).exclude('security/auth/sing-in', 'security/auth/sing-up').forRoutes('*');
+    consumer.apply(JwtMiddleware).exclude('security/auth/sign-in', 'security/auth/sign-up').forRoutes('*');
   }
 }
