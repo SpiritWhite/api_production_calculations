@@ -55,12 +55,6 @@ export class User {
 
   @Column('bool', {
     default: false,
-    name: 'is_admin'
-  })
-  isAdmin: boolean;
-
-  @Column('bool', {
-    default: false,
     name: 'is_google_account'
   })
   isGoogleAccount: boolean;
