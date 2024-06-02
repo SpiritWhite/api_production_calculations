@@ -6,7 +6,7 @@ COPY package.json ./
 
 RUN npm i yarn
 
-RUN yarn i
+RUN yarn
 
 COPY . .
 
