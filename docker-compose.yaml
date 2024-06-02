@@ -1,0 +1,57 @@
+version: '3'
+
+services:
+
+  database:
+    container_name: postgres15-3
+    image: postgres:15.3
+    restart: always
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data
+    ports:
+      - "${DATABASE_PORT}:5432"
+  
+  app:
+    build: 
+      context: .
+      target: dev
+      dockerfile: Dockerfile
+    container_name: nest_app
+
+    volumes:
+      - .:/app/
+      - /app/node_modules
+
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRE_IN: ${JWT_EXPIRE_IN}
+    depends_on:
+      - database
+
+  pgAdmin4:
+    depends_on:
+      - database
+    container_name: pgAdmin4-1
+    image: elestio/pgadmin:REL-8_2
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=jcperez@valesfortech.com
+      - PGADMIN_DEFAULT_PASSWORD=God092216
+      - PGADMIN_LISTEN_PORT=80
+    volumes:
+        - ./servers.json:/pgadmin4/servers.json
+    ports:
+      - "8085:80"
