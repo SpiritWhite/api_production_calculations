@@ -1,30 +1,32 @@
+import { randomUUID } from 'node:crypto';
 import {
   AfterUpdate,
   BeforeInsert,
   BeforeUpdate,
   Column,
-  Entity
+  Entity,
 } from 'typeorm';
 
-@Entity('users', {
-  schema: 'security'
-})
+@Entity('users', {})
 export class User {
 
   @Column('uuid', {
     name: 'user_id',
-    primary: true
+    primary: true,
+    default: randomUUID()
   })
   userId?: string;
 
   @Column('varchar', {
     unique: true,
+    nullable: false,
     name: 'username'
   })
   username: string;
 
   @Column('varchar', {
-    unique: true
+    unique: true,
+    nullable: false
   })
   email: string;
 
@@ -53,17 +55,16 @@ export class User {
   @Column('date')
   birthdate: Date;
 
-  @Column('bool', {
-    default: false,
-    name: 'is_google_account'
+  @Column('date', {
+    name: 'last_login'
   })
-  isGoogleAccount: boolean;
+  lastLogin: Date;
 
   @Column('bool', {
-    default: true,
-    name: 'is_online'
+    default: false,
+    name: 'is_extern_account'
   })
-  isOnline: boolean;
+  isExternAccount: boolean;
 
   @Column('bool', {
     default: true,

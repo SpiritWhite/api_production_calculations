@@ -21,8 +21,8 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
   ) { }
 
-  async singIn(singInAuthDto: SingInAuthDto) {
-    const { email, username, password } = singInAuthDto;
+  async signIn(signInAuthDto: SingInAuthDto) {
+    const { email, username, password } = signInAuthDto;
     const existUser = await this.findOneUser(email, username, true);
     if (!existUser) throw new UnauthorizedException('Credential Error');
     if (!bcrypt.compareSync(password, existUser.password)) throw new UnauthorizedException('Credential Error');
@@ -32,19 +32,18 @@ export class AuthService {
     return { user: { ...existUser }, token };
   }
 
-  async singUp(singUpAuthDto: SingUpAuthDto) {
+  async signUp(signUpAuthDto: SingUpAuthDto) {
     try {
-      const { email, username } = singUpAuthDto;
+      const { email, username } = signUpAuthDto;
       const existUser = await this.findOneUser(email, username);
       if (existUser) throw new BadRequestException('User account already');
       const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash(singUpAuthDto.password, salt);
+      const password = await bcrypt.hash(signUpAuthDto.password, salt);
       const user = await this.userRepository.create({
-        ...singUpAuthDto,
+        ...signUpAuthDto,
         password,
         createdBy: username,
-        updatedBy: username,
-        isOnline: true
+        updatedBy: username
       });
       await this.userRepository.save(user);
       delete user.password;
@@ -56,8 +55,8 @@ export class AuthService {
     }
   }
 
-  async singOut(user: IRequestUser) {
-    return `Sing out user ${user.username}`;
+  async signOut(user: IRequestUser) {
+    return `Sign out user ${user.username}`;
   }
 
   async refreshToken(user: User) {

@@ -46,5 +46,5 @@ export class SingUpAuthDto {
   public birthdate: Date;
 
   @IsBoolean()
-  public isGoogleAccount: boolean = false;
+  public isExternalAccount: boolean = false;
 }

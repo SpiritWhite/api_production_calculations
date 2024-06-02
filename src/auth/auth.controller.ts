@@ -9,23 +9,29 @@ export class AuthController {
   @HttpCode(200)
   @Post('sign-in')
   signIn(@Body() singInAuthDto: SingInAuthDto) {
-    return this.authService.singIn(singInAuthDto);
+    return this.authService.signIn(singInAuthDto);
   }
 
   @HttpCode(201)
   @Post('sign-up')
   signUp(@Body() singUpAuthDto: SingUpAuthDto) {
-    return this.authService.singUp(singUpAuthDto);
+    return this.authService.signUp(singUpAuthDto);
   }
 
+  @HttpCode(204)
   @Post('sign-out')
   signOut(@Request() request) {
-    return this.authService.singOut(request['user']);
+    return this.authService.signOut(request['user']);
   }
 
   @HttpCode(200)
   @Get('refresh')
   refreshToken(@Request() request) {
     return this.authService.refreshToken(request['user']);
+  }
+  @HttpCode(200)
+  @Post('email-recovery')
+  emailRecovery(@Body() emailRecoveryDto: any) {
+    return;
   }
 }
