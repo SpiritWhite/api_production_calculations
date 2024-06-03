@@ -41,6 +41,7 @@ export class SingUpAuthDto {
   @IsString()
   public userImg: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   public birthdate: Date;

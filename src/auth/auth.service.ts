@@ -29,7 +29,14 @@ export class AuthService {
     if (!existUser.isActive) throw new UnauthorizedException('User account is disable');
     delete existUser.password;
     const token = await this.generatedJWTToken({ sub: existUser.userId });
-    return { user: { ...existUser }, token };
+    const refreshToken = await this.generatedJWTToken({ sub: existUser.userId }, '15d');
+    return {
+      'detail': {
+        user: { ...existUser },
+        'accessToken': token,
+        'refreshToken': refreshToken
+      }
+    };
   }
 
   async signUp(signUpAuthDto: SingUpAuthDto) {
@@ -48,7 +55,14 @@ export class AuthService {
       await this.userRepository.save(user);
       delete user.password;
       const token = await this.generatedJWTToken({ sub: user.userId });
-      return { user, token };
+      const refreshToken = await this.generatedJWTToken({ sub: user.userId }, '15d');
+      return {
+        'detail': {
+          user,
+          'accessToken': token,
+          'refreshToken': refreshToken
+        }
+      };
     } catch (error) {
       this.logger.error(error.message);
       throw new InternalServerErrorException('Contact Technical Support');
@@ -74,11 +88,11 @@ export class AuthService {
     payload: object,
     expiresIn = this.configService.get<string>('jwtExpiresIn'),
   ) {
-    const access_token = await this.jwtService.signAsync(payload, {
+    const token = await this.jwtService.signAsync(payload, {
       expiresIn,
     });
-    const { exp } = await this.jwtService.verifyAsync<IPayload>(access_token);
-    return { access_token, expireAt: exp };
+    const { exp } = await this.jwtService.verifyAsync<IPayload>(token);
+    return { token, expireAt: exp };
   }
 
   private async findOneUser(email?: string, username?: string, password = false): Promise<User> {

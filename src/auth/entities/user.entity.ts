@@ -52,11 +52,14 @@ export class User {
   })
   userImg: string;
 
-  @Column('date')
+  @Column('date', {
+    nullable: true
+  })
   birthdate: Date;
 
   @Column('date', {
-    name: 'last_login'
+    name: 'last_login',
+    default: new Date()
   })
   lastLogin: Date;
 
