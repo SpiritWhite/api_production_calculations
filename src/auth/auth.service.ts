@@ -65,6 +65,7 @@ export class AuthService {
       };
     } catch (error) {
       this.logger.error(error.message);
+      if (error instanceof BadRequestException) return new BadRequestException(error.message);
       throw new InternalServerErrorException('Contact Technical Support');
     }
   }
