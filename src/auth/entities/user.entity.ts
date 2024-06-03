@@ -84,7 +84,8 @@ export class User {
 
   @Column('time without time zone', {
     name: 'created_at',
-    nullable: false
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP'
   })
   createdAt: Date
 
@@ -96,7 +97,9 @@ export class User {
 
   @Column('time without time zone', {
     name: 'updated_at',
-    nullable: false
+    nullable: false,
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP'
   })
   updatedAt: Date
 
@@ -106,13 +109,13 @@ export class User {
   checkFieldsBeforeInsert() {
     this.email = this.email.toLowerCase().trim();
     this.username = this.username.toLowerCase().trim();
-    this.createdAt = new Date(new Date().toLocaleString('en-us'));
-    this.updatedAt = new Date(new Date().toLocaleString('en-us'));
+    // this.createdAt = new Date(new Date().toLocaleString('en-us'));
+    // this.updatedAt = new Date(new Date().toLocaleString('en-us'));
   }
 
   @AfterUpdate()
   updatedTableRegister() {
-    this.updatedAt = new Date(new Date().toLocaleString('en-us'));
+    // this.updatedAt = new Date(new Date().toLocaleString('en-us'));
   }
 
 
