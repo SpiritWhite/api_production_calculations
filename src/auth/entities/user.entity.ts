@@ -52,7 +52,9 @@ export class User {
   })
   userImg: string;
 
-  @Column('date')
+  @Column('date', {
+    nullable: true
+  })
   birthdate: Date;
 
   @Column('date', {
