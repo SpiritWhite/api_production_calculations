@@ -59,7 +59,7 @@ export class User {
 
   @Column('date', {
     name: 'last_login',
-    default: new Date()
+    nullable: true
   })
   lastLogin: Date;
 
