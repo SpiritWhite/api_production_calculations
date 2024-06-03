@@ -78,7 +78,7 @@ export class AuthService {
     try {
       const { userId } = user;
       const token = await this.generatedJWTToken({ sub: userId });
-      return { user, token };
+      return { 'detail': { user, 'accessToken': token } };
     } catch (error) {
       this.logger.error(error.message);
       throw new InternalServerErrorException('Contact Technical Support');
