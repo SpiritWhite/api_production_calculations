@@ -56,7 +56,8 @@ export class User {
   birthdate: Date;
 
   @Column('date', {
-    name: 'last_login'
+    name: 'last_login',
+    default: new Date()
   })
   lastLogin: Date;
 

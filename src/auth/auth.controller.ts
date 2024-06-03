@@ -9,6 +9,7 @@ export class AuthController {
   @HttpCode(200)
   @Post('sign-in')
   signIn(@Body() singInAuthDto: SingInAuthDto) {
+    console.log(singInAuthDto);
     return this.authService.signIn(singInAuthDto);
   }
 
