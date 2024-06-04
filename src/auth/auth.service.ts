@@ -42,8 +42,10 @@ export class AuthService {
   async signUp(signUpAuthDto: SingUpAuthDto) {
     try {
       const { email, username } = signUpAuthDto;
-      const existUser = await this.findOneUser(email, username);
-      if (existUser) throw new BadRequestException('User account already');
+      const existAccunt = await this.findOneUser(email);
+      const existUsername = await this.findOneUser(undefined, username);
+      if (existAccunt) throw new BadRequestException('User account already');
+      if (existUsername) throw new BadRequestException('Username already');
       const salt = await bcrypt.genSalt();
       const password = await bcrypt.hash(signUpAuthDto.password, salt);
       const user = await this.userRepository.create({
