@@ -4,10 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { SingInAuthDto, SingUpAuthDto } from './dto';
+import { EmailRecoveryDTO, SingInAuthDto, SingUpAuthDto } from './dto';
 import { IPayload } from '../common/interfaces';
 import { IRequestUser } from './interfaces';
-import { User } from './entities';
+import { EmailRecovery, User } from './entities';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +19,8 @@ export class AuthService {
     private configService: ConfigService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(EmailRecovery)
+    private readonly emailRecoveryRepository: Repository<EmailRecovery>
   ) { }
 
   async signIn(signInAuthDto: SingInAuthDto) {
@@ -74,6 +76,27 @@ export class AuthService {
 
   async signOut(user: IRequestUser) {
     return `Sign out user ${user.username}`;
+  }
+
+  async emailRecovery(emailRecoveryDto: EmailRecoveryDTO) {
+    try {
+      const { email } = emailRecoveryDto;
+      const existAccount = await this.findOneUser(email);
+      if (existAccount) throw new BadRequestException('User account already');
+      const token = await this.generatedJWTToken({ sub: existAccount.userId }, '24h');
+      const emailRecovery = await this.emailRecoveryRepository.create({
+        tokenRecovery: token.token,
+        expireIn: token.expireAt,
+        userId: existAccount.userId,
+        createdBy: existAccount.username,
+        updatedBy: existAccount.username
+      });
+      await this.emailRecoveryRepository.save(emailRecovery);
+    } catch (error) {
+      this.logger.error(error.message);
+      if (error instanceof BadRequestException) throw new BadRequestException(error.message);
+      throw new InternalServerErrorException('Contact Technical Support');
+    }
   }
 
   async refreshToken(user: User) {
