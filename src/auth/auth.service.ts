@@ -81,17 +81,29 @@ export class AuthService {
   async emailRecovery(emailRecoveryDto: EmailRecoveryDTO) {
     try {
       const { email } = emailRecoveryDto;
-      const existAccount = await this.findOneUser(email);
-      if (existAccount) throw new BadRequestException('User account already');
-      const token = await this.generatedJWTToken({ sub: existAccount.userId }, '24h');
-      const emailRecovery = await this.emailRecoveryRepository.create({
+      const account = await this.findOneUser(email);
+      if (!account) throw new BadRequestException('Account does not exist');
+      const recovery = await this.emailRecoveryRepository.findOne({ where: { userId: account.userId } });
+      const token = await this.generatedJWTToken({ sub: account.userId }, '24h');
+      if (!recovery) {
+        const emailRecovery = await this.emailRecoveryRepository.create({
+          tokenRecovery: token.token,
+          expireIn: token.expireAt,
+          userId: account.userId,
+          createdBy: account.username,
+          updatedBy: account.username
+        });
+        await this.emailRecoveryRepository.save(emailRecovery);
+        return { token };
+      }
+      const emailRecovery = await this.emailRecoveryRepository.update(account.userId ,{
         tokenRecovery: token.token,
         expireIn: token.expireAt,
-        userId: existAccount.userId,
-        createdBy: existAccount.username,
-        updatedBy: existAccount.username
+        createdBy: account.username,
+        updatedBy: account.username
       });
-      await this.emailRecoveryRepository.save(emailRecovery);
+      // await this.emailRecoveryRepository.s(emailRecovery);
+      return { token };
     } catch (error) {
       this.logger.error(error.message);
       if (error instanceof BadRequestException) throw new BadRequestException(error.message);

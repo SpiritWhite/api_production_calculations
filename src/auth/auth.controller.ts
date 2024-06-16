@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, HttpCode, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SingInAuthDto, SingUpAuthDto } from './dto';
+import { EmailRecoveryDTO, SingInAuthDto, SingUpAuthDto } from './dto';
 
 @Controller()
 export class AuthController {
@@ -31,7 +31,7 @@ export class AuthController {
   }
   @HttpCode(200)
   @Post('email-recovery')
-  emailRecovery(@Body() emailRecoveryDto: any) {
-    return;
+  emailRecovery(@Body() emailRecoveryDto: EmailRecoveryDTO) {
+    return this.authService.emailRecovery(emailRecoveryDto);
   }
 }
