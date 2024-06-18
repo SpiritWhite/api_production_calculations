@@ -37,12 +37,6 @@ import { JwtMiddleware } from './common/middleware/jwt.middleware';
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get('database.url'),
-        // host: configService.get('database.host'),
-        // port: parseInt(configService.get('database.port'), 10),
-        // username: configService.get('database.username'),
-        // password: configService.get('database.password'),
-        // database: configService.get('database.database'),
-        // entities: [],
         ssl: true,
         autoLoadEntities: true,
         synchronize: true,
@@ -65,6 +59,10 @@ import { JwtMiddleware } from './common/middleware/jwt.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).exclude('security/auth/sign-in', 'security/auth/sign-up').forRoutes('*');
+    consumer.apply(JwtMiddleware).exclude(
+      'security/auth/sign-in',
+      'security/auth/sign-up',
+      'security/auth/email-recovery'
+    ).forRoutes('*');
   }
 }

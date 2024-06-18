@@ -4,10 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { SingInAuthDto, SingUpAuthDto } from './dto';
+import { EmailRecoveryDTO, SingInAuthDto, SingUpAuthDto } from './dto';
 import { IPayload } from '../common/interfaces';
 import { IRequestUser } from './interfaces';
-import { User } from './entities';
+import { EmailRecovery, User } from './entities';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +19,8 @@ export class AuthService {
     private configService: ConfigService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(EmailRecovery)
+    private readonly emailRecoveryRepository: Repository<EmailRecovery>
   ) { }
 
   async signIn(signInAuthDto: SingInAuthDto) {
@@ -74,6 +76,39 @@ export class AuthService {
 
   async signOut(user: IRequestUser) {
     return `Sign out user ${user.username}`;
+  }
+
+  async emailRecovery(emailRecoveryDto: EmailRecoveryDTO) {
+    try {
+      const { email } = emailRecoveryDto;
+      const account = await this.findOneUser(email);
+      if (!account) throw new BadRequestException('Account does not exist');
+      const recovery = await this.emailRecoveryRepository.findOne({ where: { userId: account.userId } });
+      const token = await this.generatedJWTToken({ sub: account.userId }, '24h');
+      if (!recovery) {
+        const emailRecovery = await this.emailRecoveryRepository.create({
+          tokenRecovery: token.token,
+          expireIn: token.expireAt,
+          userId: account.userId,
+          createdBy: account.username,
+          updatedBy: account.username
+        });
+        await this.emailRecoveryRepository.save(emailRecovery);
+        return { token };
+      }
+      const emailRecovery = await this.emailRecoveryRepository.update(account.userId ,{
+        tokenRecovery: token.token,
+        expireIn: token.expireAt,
+        createdBy: account.username,
+        updatedBy: account.username
+      });
+      // await this.emailRecoveryRepository.s(emailRecovery);
+      return { token };
+    } catch (error) {
+      this.logger.error(error.message);
+      if (error instanceof BadRequestException) throw new BadRequestException(error.message);
+      throw new InternalServerErrorException('Contact Technical Support');
+    }
   }
 
   async refreshToken(user: User) {
