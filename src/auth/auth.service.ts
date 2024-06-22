@@ -29,6 +29,11 @@ export class AuthService {
     if (!existUser) throw new UnauthorizedException('Credential Error');
     if (!bcrypt.compareSync(password, existUser.password)) throw new UnauthorizedException('Credential Error');
     if (!existUser.isActive) throw new UnauthorizedException('User account is disable');
+    await this.userRepository.update({ userId: existUser.userId },{
+      lastLogin: new Date(),
+      createdBy: existUser.username,
+      updatedBy: existUser.username
+    });
     delete existUser.password;
     const token = await this.generatedJWTToken({ sub: existUser.userId });
     const refreshToken = await this.generatedJWTToken({ sub: existUser.userId }, '15d');
